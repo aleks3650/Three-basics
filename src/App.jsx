@@ -1,32 +1,39 @@
+import { Canvas } from "@react-three/fiber";
+import "./App.css";
+import { Physics } from "@react-three/rapier";
+import Experience from "./components/Experience";
+import { Suspense, useMemo } from "react";
+import { KeyboardControls, Loader } from "@react-three/drei";
+import { Controls } from "./constans/Const";
 
-import './App.css'
-import { Canvas } from '@react-three/fiber'
-import Experience from './components/Experience'
-import { useRef, useEffect } from 'react'
-import { useScroll } from 'framer-motion'
+
 
 function App() {
-  const scrollRef = useRef(0)
-  const { scrollYProgress } = useScroll()
-
-  useEffect(() => {
-    const updateScrollValue = (v) => {
-      scrollRef.current = v
-    }
-    const unsubscribe = scrollYProgress.on("change", updateScrollValue)
-    return () => {
-      unsubscribe()
-    }
-  }, [scrollYProgress])
-
+  const map = useMemo(
+    () => [
+      { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
+      { name: Controls.back, keys: ["ArrowDown", "KeyS"] },
+      { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
+      { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
+      { name: Controls.jump, keys: ["Space"] },
+    ],
+    []
+  );
   return (
-    <div style={{ height: '200vh' }}> 
-      <Canvas>
-        <Experience scroll={scrollRef} />
+    <>
+    <KeyboardControls map={map}>
+      <Canvas shadows camera={{ position: [10, 10, 10], fov: 50 }}>
+        <color attach="background" args={["#ececec"]} />
+        <Suspense fallback={null}>
+          <Physics>
+            <Experience />
+          </Physics>
+        </Suspense>
       </Canvas>
-      <h1>The End</h1>
-    </div>
-  )
+      <Loader/>
+    </KeyboardControls>
+    </>
+  );
 }
 
-export default App
+export default App;
